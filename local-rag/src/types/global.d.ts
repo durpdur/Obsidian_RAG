@@ -1,22 +1,53 @@
 export { };
 
 type ChatRole = "system" | "user" | "assistant";
-type ChatMessage = { role: ChatRole; content: string };
 
-type LlamaStatus = { status: "stopped" | "starting" | "running" | "error"; port: number; baseUrl: string };
+export type Msg = {
+    role: ChatRole;
+    content: string;
+};
 
-interface LlamaApi {
+export type SidecarStatus = "stopped" | "starting" | "running" | "error";
+
+export type LlamaStatus = {
+    status: SidecarStatus;
+    port: number;
+    baseUrl: string;
+};
+
+export interface LlamaApi {
+    // Lifecycle
     start(): Promise<LlamaStatus>;
     status(): Promise<LlamaStatus>;
     stop(): Promise<LlamaStatus>;
-    chat(messages: ChatMessage[]): Promise<any>; // or type this to match your server response
+
+    // Non-streaming chat
+    chat(messages: Msg[]): Promise<any>;
+
+    // Streaming
+    chatStreamStart(params: {
+        requestId: string;
+        messages: Msg[];
+        temperature?: number;
+    }): void;
+
+    chatStreamCancel(): void;
+
+    onChatStreamDelta(
+        cb: (payload: { requestId: string; delta: string }) => void
+    ): () => void;
+
+    onChatStreamDone(
+        cb: (payload: { requestId: string }) => void
+    ): () => void;
+
+    onChatStreamError(
+        cb: (payload: { requestId: string; error: string }) => void
+    ): () => void;
 }
 
 declare global {
     interface Window {
         llama: LlamaApi;
-        api: {
-            ping(): string;
-        };
     }
 }

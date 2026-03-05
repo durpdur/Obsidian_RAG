@@ -122,12 +122,13 @@ function App() {
             if (!delta) return;
 
             setMessages((prev) => {
-                const copy = [...prev];
-                const last = copy[copy.length - 1];
-                if (last?.role === "assistant") {
-                    last.content += delta;
-                }
-                return copy;
+                const i = prev.length - 1;
+                const last = prev[i];
+                if (!last || last.role !== "assistant") return prev;
+
+                const next = prev.slice();
+                next[i] = { ...last, content: last.content + delta };
+                return next;
             });
         });
 

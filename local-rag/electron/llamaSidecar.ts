@@ -33,7 +33,7 @@ export class LlamaSidecar {
 
     private modelPath() {
         const base = this.resourcesBase();
-        return path.join(base, "models", "Phi-4-mini-instruct-Q4_K_M.gguf");
+        return path.join(base, "models", "Qwen3.5-2B.Q4_K_M.gguf");
     }
 
     private async getFreePort(): Promise<number> {
@@ -82,11 +82,12 @@ export class LlamaSidecar {
             "-m", model,
 
             // Chat defaults:
-            "--ctx-size", "4096",
+            "--ctx-size", "8192",
             "--threads", "4",
 
-            // You can also set:
-            // "--n-gpu-layers", "999",   // if using GPU layers on supported platforms/builds
+            // KV Cache (Key Value Cache)
+            "--cache-type-k", "q8_0",
+            "--cache-type-v", "q8_0",
         ];
 
         this.proc = spawn(bin, args, {

@@ -9,7 +9,8 @@
     "build": "tsc --noEmit && vite build",
     "dist": "npm run build && electron-builder",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "chat": "tsx src/ai/index.ts"
   },
   "build": {
     "appId": "com.durpdur.obi",
@@ -21,10 +22,16 @@
     ]
   },
   "dependencies": {
+    "@langchain/classic": "^1.0.23",
+    "@langchain/core": "^1.1.32",
+    "@langchain/ollama": "^1.2.6",
+    "@langchain/textsplitters": "^1.0.1",
     "better-sqlite3": "^12.6.2",
+    "langchain": "^1.2.31",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "sqlite-vec": "^0.1.7-alpha.2"
+    "sqlite-vec": "^0.1.7-alpha.2",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

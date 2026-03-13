@@ -54,3 +54,8 @@ If you use the included example file (`src/ai/data/rag.txt`), you can try questi
 - "How does chunking affect retrieval quality?"
 - "What is hybrid search and why is it useful?"
 - "What are some advanced chunking strategies mentioned in the document?"
+
+## Helpful resources
+https://github.com/anoopw3bdev/RAG-langchain/tree/main
+https://docs.langchain.com/oss/javascript/langchain/rag
+

@@ -3,17 +3,39 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { LlamaSidecar } from "./llamaSidecar.js";
 
-const isDev = !app.isPackaged
+// -- Developer Mode Check -----------------------------
+const isDev = !app.isPackaged // Packaged means not developer, not packaged means developer mode
 // if (isDev) console.log("Dev URL:", process.env.VITE_DEV_SERVER_URL);
 
-// - Environment variables -----------------------------
+/* -- Module paths in ESM -------------------------------
+Because package.json has "type": "module", .js files are treated as ESM (ECMAScript Modules).
+ESM uses `import` / `export` and does not provide CommonJS globals like `__filename` and `__dirname`.
+
+To get the current file and directory (CommonJS-style), we derive them from `import.meta.url`.
+This is useful for building paths relative to this module (e.g., preload.ts).
+*/
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+/* -- Variables shared between  -----------
+- llama:chat (deprecated)
+- llama:chat_stream_start
+*/
+const chatModelTemperature = 0.2;
 
-// - Registering the llamaSideCare ----------------------
-const llama = new LlamaSidecar();
+/* -- LlamaSidecar IPC handler -----------------------------------
+Main-process handlers manage the LlamaSidecar lifecycle (ipcMain.handle).
+preload.ts exposes a safe renderer API (via contextBridge) that calls those
+handlers using ipcRenderer.invoke, limiting what the frontend can access.
 
+llama:start
+llama:status
+llama:stop
+llama:chat
+*/
+const llama = new LlamaSidecar(); // Single sidecar instance for chatting (Qwen 3.5 currently)
+
+// sidecar lifecycle and deprecated chat handlers
 function registerLlamaIpc() {
     ipcMain.handle("llama:start", async () => {
         await llama.start();
@@ -33,18 +55,29 @@ function registerLlamaIpc() {
         return await llama.chatCompletions({
             model: "local-model",
             messages,
-            temperature: 0.7,
+            temperature: chatModelTemperature,
             stream: false,
         });
     });
 }
 
-// - Streaming llama ipc handler -----------------------
-// keep a map so you can cancel a stream per renderer
-const streamAborters = new Map<number, AbortController>();
+/* -- Chat Model Streaming IPC -----------------------
+steamAborters: { webContent.id : AbortController}
+------------------------------------------------------
+llama:chat_stream_start
+ARGS
+- requestId: For React to match deltas (Determines which page the stream gets rendered to)
+- messages: Chat history
+- temperature: Model temp, refer to chatModelTemperature
+------------------------------------------------------
+llama:chat_stream_cancel
+DESC
+- React calls ipcRenderer => emits llama:chat_stream_cancel to abort stream
+*/
+const streamAborters = new Map<number, AbortController>(); // { requestId: }
 
 ipcMain.on("llama:chat_stream_start", async (event, { requestId, messages, temperature }) => {
-    // ensure sidecar is running
+    // Ensure sidecar running, otherwise emit "llama:chat_stream_error" err msg for frontend rendering
     if (llama.getStatus().status !== "running") {
         try { await llama.start(); } catch (e: any) {
             event.sender.send("llama:chat_stream_error", { requestId, error: String(e?.message ?? e) });
@@ -52,11 +85,13 @@ ipcMain.on("llama:chat_stream_start", async (event, { requestId, messages, tempe
         }
     }
 
+    // Registoring the webContent ID to allow the ability to cancel per stream
     const wcId = event.sender.id;
     const ac = new AbortController();
     streamAborters.set(wcId, ac);
 
     try {
+        // Start fetch to local server with "stream: true" (SSE)
         const res = await fetch(`${llama.getStatus().baseUrl}/v1/chat/completions`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -64,11 +99,12 @@ ipcMain.on("llama:chat_stream_start", async (event, { requestId, messages, tempe
             body: JSON.stringify({
                 model: "local-model",
                 messages,
-                temperature: temperature ?? 0.7,
-                stream: true, // ✅ SSE
+                temperature: temperature ?? chatModelTemperature,
+                stream: true,
             }),
         });
 
+        // If fetch request fails, send error
         if (!res.ok || !res.body) {
             const txt = await res.text().catch(() => "");
             event.sender.send("llama:chat_stream_error", {
@@ -86,11 +122,12 @@ ipcMain.on("llama:chat_stream_start", async (event, { requestId, messages, tempe
         const decoder = new TextDecoder("utf-8");
         let buffer = "";
 
+        // Stream is bytes => decode to text => parse SSE frames
         while (true) {
             const { value, done } = await reader.read();
             if (done) break;
 
-            buffer += decoder.decode(value, { stream: true });
+            buffer += decoder.decode(value, { stream: true }); // decode to text
 
             // SSE frames separated by \n\n
             let idx;
@@ -144,22 +181,33 @@ ipcMain.on("llama:chat_stream_cancel", (event) => {
     streamAborters.delete(event.sender.id);
 });
 
-// - Creates window --------------------------
+/* -- Electron Main Process -----------------------
+createWindow
+
+app.whenReady()
+
+app.on("activate")
+
+app.on("window-all-closed")
+
+app.on("before-quit")
+
+*/
 function createWindow() {
     const win = new BrowserWindow({
         width: 1200,
         height: 800,
         webPreferences: {
             preload: path.join(__dirname, "preload.mjs"),
-            contextIsolation: true,
-            nodeIntegration: false,
+            contextIsolation: true, // preload runs in isolated context
+            nodeIntegration: false, // renderer can't import Node APIs directly
         },
     })
 
     if (isDev) {
         const devUrl = process.env.VITE_DEV_SERVER_URL ?? "http://localhost:5173";
         win.loadURL(devUrl);
-        // win.webContents.openDevTools()
+        // win.webContents.openDevTools() // Auto opens dev tools
     } else {
         win.loadFile(path.join(__dirname, "../dist/index.html"))
     }

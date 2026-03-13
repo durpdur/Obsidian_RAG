@@ -31,7 +31,7 @@ export class LlamaSidecar {
         return path.join(base, "bin", exe);
     }
 
-    private modelPath() {
+    private chatModelPath() {
         const base = this.resourcesBase();
         return path.join(base, "models", "Qwen3.5-2B.Q4_K_M.gguf");
     }
@@ -72,7 +72,7 @@ export class LlamaSidecar {
         this.baseUrl = `http://127.0.0.1:${this.port}`;
 
         const bin = this.binPath();
-        const model = this.modelPath();
+        const model = this.chatModelPath();
 
         // Typical llama-server args (tune as needed)
         const args = [

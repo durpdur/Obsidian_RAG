@@ -57,5 +57,6 @@ If you use the included example file (`src/ai/data/rag.txt`), you can try questi
 
 ## Helpful resources
 https://github.com/anoopw3bdev/RAG-langchain/tree/main
+
 https://docs.langchain.com/oss/javascript/langchain/rag
 

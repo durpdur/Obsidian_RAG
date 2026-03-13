@@ -49,3 +49,9 @@ contextBridge.exposeInMainWorld("llama", {
         return () => ipcRenderer.removeListener("llama:chat_stream_error", handler);
     },
 });
+
+contextBridge.exposeInMainWorld("embed", {
+    file: (filePath: string) => {
+        ipcRenderer.invoke("embed:file", filePath);
+    }
+});

@@ -1,0 +1,1 @@
+export type SidecarStatus = "stopped" | "starting" | "running" | "error";

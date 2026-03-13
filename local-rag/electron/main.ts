@@ -2,6 +2,8 @@ import { app, BrowserWindow, ipcMain } from "electron"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { LlamaSidecar } from "./llamaSidecar.js";
+import { EmbedSidecar } from "./embedSidecar.js";
+import fs from "node:fs/promises";
 
 // -- Developer Mode Check -----------------------------
 const isDev = !app.isPackaged // Packaged means not developer, not packaged means developer mode
@@ -17,13 +19,13 @@ This is useful for building paths relative to this module (e.g., preload.ts).
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-/* -- Variables shared between  -----------
+/* - Variables shared between  -----------
 - llama:chat (deprecated)
 - llama:chat_stream_start
 */
 const chatModelTemperature = 0.2;
 
-/* -- LlamaSidecar IPC handler -----------------------------------
+/* - LlamaSidecar IPC handler -----------------------------------
 Main-process handlers manage the LlamaSidecar lifecycle (ipcMain.handle).
 preload.ts exposes a safe renderer API (via contextBridge) that calls those
 handlers using ipcRenderer.invoke, limiting what the frontend can access.
@@ -181,7 +183,46 @@ ipcMain.on("llama:chat_stream_cancel", (event) => {
     streamAborters.delete(event.sender.id);
 });
 
-/* -- Electron Main Process -----------------------
+/* - EmbedSidecar IPC handler -----------------------
+*/
+const embedder = new EmbedSidecar();
+
+ipcMain.handle("embed:file", async (_event, filePath: string) => {
+    // 1) read file
+    const ext = path.extname(filePath).toLowerCase();
+
+    // For now: assume plain text / markdown
+    // (PDF/DOCX need extractors; see notes below)
+    if (![".txt", ".md"].includes(ext)) {
+        throw new Error(`Unsupported file type: ${ext}. Add a parser/extractor for this type.`);
+    }
+
+    const raw = await fs.readFile(filePath, "utf-8");
+
+    // 2) chunk
+    const chunks = chunkText(raw);
+
+    // 3) embed
+    const embeddings = await embedder.embed(chunks);
+
+    // return both so the renderer can map vectors back to text
+    return { filePath, chunks, embeddings };
+});
+
+// Simple chunker
+function chunkText(text: string, maxChars = 1200, overlap = 200) {
+    const chunks: string[] = [];
+    let i = 0;
+    while (i < text.length) {
+        const end = Math.min(i + maxChars, text.length);
+        chunks.push(text.slice(i, end));
+        i = end - overlap;
+        if (i < 0) i = 0;
+    }
+    return chunks.filter(Boolean);
+}
+
+/* - Electron Main Process -----------------------
 createWindow
 
 app.whenReady()

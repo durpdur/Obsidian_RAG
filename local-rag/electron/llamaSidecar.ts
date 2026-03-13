@@ -2,8 +2,7 @@ import { app } from "electron";
 import path from "node:path";
 import { spawn, ChildProcessWithoutNullStreams } from "node:child_process";
 import net from "node:net";
-
-type SidecarStatus = "stopped" | "starting" | "running" | "error";
+import { SidecarStatus } from "./electron";
 
 export class LlamaSidecar {
     private proc: ChildProcessWithoutNullStreams | null = null;
@@ -43,7 +42,7 @@ export class LlamaSidecar {
                 const addr = srv.address();
                 srv.close(() => {
                     if (typeof addr === "object" && addr?.port) resolve(addr.port);
-                    else reject(new Error("Failed to acquire free port"));
+                    else reject(new Error("Failed to acquire free port for chat model"));
                 });
             });
             srv.on("error", reject);
@@ -111,6 +110,7 @@ export class LlamaSidecar {
 
         this.proc.on("error", (err) => {
             console.error("Failed to start process:", err);
+            this.status = "error";
         });
 
         this.proc.on("exit", (code, signal) => {

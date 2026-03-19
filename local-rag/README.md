@@ -1,73 +1,45 @@
-# React + TypeScript + Vite
+# Obsidian RAG
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Install Guide
 
-Currently, two official plugins are available:
+- `git clone git@github.com:durpdur/Obsidian_RAG.git`
+- navigate to `local-rag`
+- `npm install`
+- `npx electron-rebuild`
+  - Fixes `The module better_sqlite3.node was compiled against a different Node.js version using`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+In resources/models, place your `.gguf` models
 
-## React Compiler
+Download `Qwen3.5-2B-Q4_K_M.gguf` for text model
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/tree/main
 
-## Expanding the ESLint configuration
+Download `nomic-embed-text-v2-moe.Q4_K_M.gguf` for embed model
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- https://huggingface.co/nomic-ai/nomic-embed-text-v2-moe-GGUF/tree/main
 
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
+### Potential Errors:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+#### Mac
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+`Apple could not verify “llama-server” is free of malware that may harm your Mac or compromise your privacy.`
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- You'll need to sign the binaries in order for mac to trust it, simply copy paste the error into chatGPT and it'll lead you through
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+---
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+## General
+
+Before trying to push a change into the repo, please understand the below concepts.
+
+- What is the main branch?
+- What is a branch?
+- What is a merge request?
+
+- How to commit
+- How to push
+- how to pull
+
+- How to handle a merge conflict
+
+- [Git Basics](https://webtuu.com/blog/04/git-basics-branching-merging-push-to-github)

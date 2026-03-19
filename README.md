@@ -1,15 +1,37 @@
 # Obsidian RAG
 
+## Install Guide
 
+- `git clone git@github.com:durpdur/Obsidian_RAG.git`
+- navigate to `local-rag`
+- `npm install`
+- `npx electron-rebuild`
+  - Fixed `The module better_sqlite3.node was compiled against a different Node.js version using`
 
-# Helpful Links:
+In resources/models, place your `.gguf` models
 
-### Project Specific
-- [Obsidian RAG Tech Stack Deck](https://docs.google.com/presentation/d/1xIMcrdmMPHcgCuun9ZG8muywYvOVrQ7Wyyfr3_711bU/edit?usp=sharing)
+Download `Qwen3.5-2B-Q4_K_M.gguf` for text model
 
-### General
+- https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/tree/main
+
+Download `nomic-embed-text-v2-moe.Q4_K_M.gguf` for embed model
+
+- https://huggingface.co/nomic-ai/nomic-embed-text-v2-moe-GGUF/tree/main
+
+### Potential Errors:
+
+#### Mac
+
+`Apple could not verify “llama-server” is free of malware that may harm your Mac or compromise your privacy.`
+
+- You'll need to sign the binaries in order for mac to trust it, simply copy paste the error into chatGPT and it'll lead you through
+
+---
+
+## General
 
 Before trying to push a change into the repo, please understand the below concepts.
+
 - What is the main branch?
 - What is a branch?
 - What is a merge request?

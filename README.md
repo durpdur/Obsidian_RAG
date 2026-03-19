@@ -6,7 +6,7 @@
 - navigate to `local-rag`
 - `npm install`
 - `npx electron-rebuild`
-  - Fixed `The module better_sqlite3.node was compiled against a different Node.js version using`
+  - Fixes `The module better_sqlite3.node was compiled against a different Node.js version using`
 
 In resources/models, place your `.gguf` models
 

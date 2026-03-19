@@ -2,8 +2,10 @@
 
 ## Install Guide
 
+In the CLI
+
 - `git clone git@github.com:durpdur/Obsidian_RAG.git`
-- navigate to `local-rag`
+- Navigate to `local-rag` directory (Important!)
 - `npm install`
 - `npx electron-rebuild`
   - Fixes `The module better_sqlite3.node was compiled against a different Node.js version using`

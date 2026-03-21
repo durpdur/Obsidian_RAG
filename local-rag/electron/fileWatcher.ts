@@ -1,7 +1,6 @@
 import chokidar, { FSWatcher } from "chokidar"
 import path from "node:path"
 import { fileURLToPath } from "node:url";
-import fs from "node:fs"
 import { VectorStore } from "./vectorStore"
 import { SidecarStatus } from "./electron"
 

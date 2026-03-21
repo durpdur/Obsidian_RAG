@@ -265,16 +265,19 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
                 />}
             mainCanvas={
                 <MainCanvas
-                    children=
+                    canvasContent=
                     {<div
                         style={{
                             padding: 16,
+                            paddingTop: 90,
                             maxWidth: 980,
                             margin: "0 auto",
                             fontFamily:
                                 'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
                         }}
                     >
+
+                        {/* Header */}
                         <header
                             style={{
                                 display: "flex",
@@ -380,6 +383,7 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
                             </div>
                         ) : null}
 
+                        {/* Chat Messages */}
                         <div
                             style={{
                                 border: "1px solid #e5e5e5",

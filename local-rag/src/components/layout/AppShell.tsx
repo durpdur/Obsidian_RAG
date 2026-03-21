@@ -3,8 +3,6 @@ import { Box } from '@mui/material';
 
 type AppShellProps = {
     sideBar: ReactNode;
-    topBar?: ReactNode;
-    bottomDock?: ReactNode;
     mainCanvas: ReactNode;
 };
 
@@ -12,8 +10,6 @@ const SIDEBAR_WIDTH = 256;
 
 export default function AppShell({
     sideBar,
-    topBar,
-    bottomDock,
     mainCanvas,
 }: AppShellProps) {
     return (
@@ -91,29 +87,6 @@ export default function AppShell({
                     })}
                 />
 
-                {/* Sticky top bar */}
-                {topBar && (
-                    <Box
-                        sx={(theme) => ({
-                            position: 'sticky',
-                            top: 0,
-                            zIndex: 40,
-                            minHeight: 56,
-                            display: 'flex',
-                            alignItems: 'center',
-                            px: 4,
-                            backdropFilter: 'blur(12px)',
-                            backgroundColor:
-                                theme.palette.mode === 'dark'
-                                    ? 'rgba(14,14,14,0.5)'
-                                    : 'rgba(252,249,248,0.72)',
-                            borderBottom: `1px solid ${theme.palette.outline.variant}`,
-                        })}
-                    >
-                        {topBar}
-                    </Box>
-                )}
-
                 {/* Main content area */}
                 <Box
                     sx={{
@@ -126,22 +99,6 @@ export default function AppShell({
                 >
                     {mainCanvas}
                 </Box>
-
-                {/* Bottom Dock */}
-                {bottomDock && (
-                    <Box
-                        sx={{
-                            width: '100%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            px: 4,
-                            pb: 6,
-                            pt: 2,
-                        }}
-                    >
-                        {bottomDock}
-                    </Box>
-                )}
             </Box>
         </Box>
     );

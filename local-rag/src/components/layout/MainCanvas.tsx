@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 
 type MainCanvasProps = {
     topBar?: ReactNode;
-    children: ReactNode;
+    canvasContent: ReactNode;
     bottomDock?: ReactNode;
     contentMaxWidth?: number | string;
     centered?: boolean;
@@ -11,7 +11,7 @@ type MainCanvasProps = {
 
 export default function MainCanvas({
     topBar,
-    children,
+    canvasContent,
     bottomDock,
     contentMaxWidth = 960,
     centered = true,
@@ -76,11 +76,11 @@ export default function MainCanvas({
                         mx: 'auto',
                     }}
                 >
-                    {children}
+                    {canvasContent}
                 </Box>
             </Box>
 
-            {/* Main Content */}
+            {/* Bottom Dock */}
             {bottomDock && (
                 <Box
                     sx={{

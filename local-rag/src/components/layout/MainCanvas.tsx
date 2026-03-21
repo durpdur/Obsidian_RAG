@@ -18,13 +18,12 @@ export default function MainCanvas({
 }: MainCanvasProps) {
     return (
         <Box
-            sx={(theme) => ({
+            sx={{
                 minHeight: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
-                backgroundColor: theme.palette.background.default,
-            })}
+            }}
         >
             {/* Top Bar */}
             {topBar && (

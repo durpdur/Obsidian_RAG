@@ -9,9 +9,10 @@ export class LlamaSidecar {
     private status: SidecarStatus = "stopped";
     private port: number = 0;
     private baseUrl: string = "";
+    private modelType: string = "";
 
     getStatus() {
-        return { status: this.status, port: this.port, baseUrl: this.baseUrl };
+        return { status: this.status, port: this.port, baseUrl: this.baseUrl, modelType: this.modelType };
     }
 
     private resourcesBase() {
@@ -32,7 +33,8 @@ export class LlamaSidecar {
 
     private chatModelPath() {
         const base = this.resourcesBase();
-        return path.join(base, "models", "Qwen3.5-2B.Q4_K_M.gguf");
+        const modelType = "Qwen3.5-2B.Q4_K_M.gguf";
+        return path.join(base, "models", modelType);
     }
 
     private async getFreePort(): Promise<number> {
@@ -69,6 +71,7 @@ export class LlamaSidecar {
         this.status = "starting";
         this.port = await this.getFreePort();
         this.baseUrl = `http://127.0.0.1:${this.port}`;
+        this.modelType = this.chatModelPath();
 
         const bin = this.binPath();
         const model = this.chatModelPath();

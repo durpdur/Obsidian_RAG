@@ -13,14 +13,14 @@ const lightTheme = createTheme({
             main: '#6D46C0',
             light: '#A882FF',
             dark: '#4D219F',
-            contrastText: '#FFFFFF',
+            contrastText: '#EADEFF',
         },
 
         secondary: {
             main: '#446061',
             light: '#A7C5C5',
             dark: '#294545',
-            contrastText: '#FFFFFF',
+            contrastText: '#EADEFF',
         },
 
         error: {

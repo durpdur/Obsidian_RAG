@@ -21,6 +21,7 @@ export type LlamaStatus = {
     status: SidecarStatus;
     port: number;
     baseUrl: string;
+    modelType: string;
 };
 
 export interface LlamaApi {

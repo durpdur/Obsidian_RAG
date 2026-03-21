@@ -7,30 +7,30 @@ type ChatThreadTopBarProps = {
     chatModelStatus: LlamaStatus | null;
     sessionLabel?: string;
     homeLabel?: string;
-    modelLabel?: string;
+    statusLabel: string;
 };
 
 export default function ChatThreadTopBar({
     starting,
     chatModelStatus,
-    sessionLabel = "New Session",
-    homeLabel = "Home",
-    modelLabel,
+    sessionLabel,
+    homeLabel,
+    statusLabel,
 }: ChatThreadTopBarProps) {
     const theme = useTheme();
 
-    const statusLabel = starting
-        ? "starting"
-        : chatModelStatus?.status ?? "unknown";
-
-    const statusDotColor =
-        statusLabel === "running"
+    const statusDotColor = starting
+        ? theme.palette.text.disabled
+        : statusLabel === "running"
             ? theme.palette.success.main
             : statusLabel === "starting"
                 ? theme.palette.warning.main
                 : statusLabel === "error"
                     ? theme.palette.error.main
                     : theme.palette.text.disabled;
+
+    const chipText = starting ? "connecting..."
+        : chatModelStatus?.baseUrl ?? "unknown";
 
     return (
         <Box
@@ -42,6 +42,7 @@ export default function ChatThreadTopBar({
                 justifyContent: "space-between",
             }}
         >
+            {/* Path */}
             <Stack direction="row" spacing={1} alignItems="center">
                 <Typography
                     sx={{
@@ -77,6 +78,7 @@ export default function ChatThreadTopBar({
                 </Typography>
             </Stack>
 
+            {/* Status Chip */}
             <Chip
                 label={
                     <Stack direction="row" spacing={0.75} alignItems="center">
@@ -102,11 +104,10 @@ export default function ChatThreadTopBar({
                                 fontWeight: 600,
                             }}
                         >
-                            {modelLabel}
+                            {chipText}
                         </Typography>
                     </Stack>
                 }
-                title={chatModelStatus?.baseUrl || statusLabel}
                 sx={{
                     height: 28,
                     borderRadius: theme.shape,

@@ -32,8 +32,8 @@ export default function AppShell({
                     zIndex: 50,
                     display: 'flex',
                     flexDirection: 'column',
-                    py: 3,
-                    backgroundColor: theme.palette.surface.low,
+                    py: 2,
+                    backgroundColor: theme.palette.surface.base,
                     borderRight: `1px solid ${theme.palette.outline.variant}`,
                 })}
             >

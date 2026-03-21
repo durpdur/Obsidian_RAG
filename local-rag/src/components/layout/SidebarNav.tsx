@@ -74,13 +74,12 @@ function SidebarNav({
 }: SidebarNavProps) {
     return (
         <Box
-            sx={(theme) => ({
+            sx={{
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 pt: 3,
-                backgroundColor: theme.palette.surface.low,
-            })}
+            }}
         >
             {/* Brand */}
             <Box

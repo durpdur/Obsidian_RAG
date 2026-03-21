@@ -30,6 +30,20 @@ const lightTheme = createTheme({
             contrastText: '#FFFFFF',
         },
 
+        success: {
+            main: '#4FA574',
+            light: '#6FD6A1',
+            dark: '#2F7A52',
+            contrastText: '#FFFFFF',
+        },
+
+        warning: {
+            main: '#C7922E',
+            light: '#F2C572',
+            dark: '#8E6418',
+            contrastText: '#FFFFFF',
+        },
+
         background: {
             default: '#FCF9F8',
             paper: '#FFFFFF',
@@ -75,6 +89,14 @@ const lightTheme = createTheme({
             errorDim: '#C44B5F',
             errorContainer: '#FDE3E7',
             onErrorContainer: '#871C34',
+
+            successDim: '#4FA574',
+            successContainer: '#E3F4EA',
+            onSuccessContainer: '#2F7A52',
+
+            warningDim: '#C7922E',
+            warningContainer: '#FCEFD8',
+            onWarningContainer: '#8E6418',
         },
     },
     components: {

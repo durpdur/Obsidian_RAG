@@ -20,6 +20,14 @@ declare module '@mui/material/styles' {
             errorDim: string;
             errorContainer: string;
             onErrorContainer: string;
+
+            successDim: string;
+            successContainer: string;
+            onSuccessContainer: string;
+
+            warningDim: string;
+            warningContainer: string;
+            onWarningContainer: string;
         };
     }
 
@@ -44,6 +52,14 @@ declare module '@mui/material/styles' {
             errorDim: string;
             errorContainer: string;
             onErrorContainer: string;
+
+            successDim: string;
+            successContainer: string;
+            onSuccessContainer: string;
+
+            warningDim: string;
+            warningContainer: string;
+            onWarningContainer: string;
         };
     }
 }

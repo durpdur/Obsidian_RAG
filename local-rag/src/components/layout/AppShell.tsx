@@ -49,11 +49,10 @@ export default function AppShell({
                     display: 'flex',
                     flexDirection: 'column',
                     position: 'relative',
-                    overflow: 'hidden',
                     backgroundColor: theme.palette.background.default,
                 })}
             >
-                {/* Background detail */}
+                {/* Decorative Background Circle 1 */}
                 <Box
                     aria-hidden
                     sx={(theme) => ({
@@ -68,8 +67,10 @@ export default function AppShell({
                         filter: 'blur(120px)',
                         transform: 'translate(50%, -50%)',
                         pointerEvents: 'none',
+                        zIndex: 0,
                     })}
                 />
+                {/* Decorative Background Circle 2 */}
                 <Box
                     aria-hidden
                     sx={(theme) => ({
@@ -95,6 +96,8 @@ export default function AppShell({
                         flexDirection: 'column',
                         justifyContent: 'center',
                         width: '100%',
+                        position: 'relative',
+                        zIndex: 1,
                     }}
                 >
                     {mainCanvas}

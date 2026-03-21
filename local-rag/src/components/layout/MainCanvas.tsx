@@ -23,7 +23,6 @@ export default function MainCanvas({
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
-                overflow: 'hidden',
                 backgroundColor: theme.palette.background.default,
             })}
         >

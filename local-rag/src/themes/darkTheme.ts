@@ -30,6 +30,20 @@ const darkTheme = createTheme({
             contrastText: '#490013',
         },
 
+        success: {
+            main: '#6FD6A1',
+            light: '#98E5BC',
+            dark: '#3FA06F',
+            contrastText: '#0D3B24',
+        },
+
+        warning: {
+            main: '#F2C572',
+            light: '#F7D99E',
+            dark: '#BE9443',
+            contrastText: '#4A320C',
+        },
+
         background: {
             default: '#0E0E0E',
             paper: '#131313',
@@ -75,6 +89,14 @@ const darkTheme = createTheme({
             errorDim: '#C44B5F',
             errorContainer: '#871C34',
             onErrorContainer: '#FF97A3',
+
+            successDim: '#3FA06F',
+            successContainer: '#173D2A',
+            onSuccessContainer: '#98E5BC',
+
+            warningDim: '#BE9443',
+            warningContainer: '#4A3412',
+            onWarningContainer: '#F7D99E',
         },
     },
     components: {

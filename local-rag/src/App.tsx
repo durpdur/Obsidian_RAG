@@ -5,6 +5,7 @@ import { useTheme } from "@mui/material/styles";
 import AppShell from "./components/layout/AppShell";
 import SidebarNav from "./components/layout/SidebarNav";
 import MainCanvas from "./components/layout/MainCanvas";
+import ChatThreadTopBar from "./components/chatThread/ChatThreadTopBar";
 
 type NavKey = 'chat' | 'files' | 'vault' | 'history' | 'storage' | 'help';
 
@@ -265,18 +266,23 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
                 />}
             mainCanvas={
                 <MainCanvas
-                    canvasContent=
-                    {<div
+                    topBar={<ChatThreadTopBar
+                        starting={starting}
+                        chatModelStatus={chatModelStatus}
+                        sessionLabel="New Session"
+                        modelLabel="Qwen3.5-2B"
+                    />
+                    }
+                    canvasContent={<div
                         style={{
                             padding: 16,
-                            paddingTop: 90,
+                            paddingTop: 10,
                             maxWidth: 980,
                             margin: "0 auto",
                             fontFamily:
                                 'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
                         }}
                     >
-
                         {/* Header */}
                         <header
                             style={{
@@ -527,6 +533,7 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
                             </div>
                         </div>
                     </div>}
+                    bottomDock={<div></div>}
                 />
             }
         />

@@ -100,8 +100,8 @@ function SidebarNav({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.contrastText} 100%)`,
-                        color: '#000',
+                        background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.dark} 100%)`,
+                        color: theme.palette.primary.contrastText,
                     })}
                 >
                     <Icon sx={{ fontSize: 18 }}>account_tree</Icon>
@@ -130,7 +130,7 @@ function SidebarNav({
                 </Box>
             </Box>
 
-            {/* CTA (Call to Action) */}
+            {/* New Chat Button: CTA (Call to Action) */}
             <Box sx={{ px: 2, mb: 4 }}>
                 <Button
                     fullWidth
@@ -140,7 +140,7 @@ function SidebarNav({
                     sx={(theme) => ({
                         justifyContent: 'center',
                         minHeight: 40,
-                        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.contrastText} 100%)`,
+                        background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.dark} 100%)`,
                     })}
                 >
                     New Chat

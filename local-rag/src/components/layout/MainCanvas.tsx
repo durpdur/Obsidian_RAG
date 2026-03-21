@@ -27,6 +27,7 @@ export default function MainCanvas({
                 backgroundColor: theme.palette.background.default,
             })}
         >
+            {/* Top Bar */}
             {topBar && (
                 <Box
                     sx={(theme) => ({
@@ -57,6 +58,7 @@ export default function MainCanvas({
                 </Box>
             )}
 
+            {/* Main Content */}
             <Box
                 sx={{
                     flex: 1,
@@ -78,6 +80,7 @@ export default function MainCanvas({
                 </Box>
             </Box>
 
+            {/* Main Content */}
             {bottomDock && (
                 <Box
                     sx={{

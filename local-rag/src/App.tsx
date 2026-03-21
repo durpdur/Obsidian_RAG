@@ -254,278 +254,278 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
     };
 
     return (
-        <div
-            style={{
-                padding: 16,
-                maxWidth: 980,
-                margin: "0 auto",
-                fontFamily:
-                    'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
-            }}
-        >
-            <header
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    marginBottom: 12,
-                }}
-            >
-                <div>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                        <h2 style={{ margin: 0 }}>Local Chatbot</h2>
-                        <FileWatcherPicker />
-                        <span style={statusStyle}>
-                            <span
-                                style={{
-                                    width: 8,
-                                    height: 8,
-                                    borderRadius: 999,
-                                    background:
-                                        chatModelStatusLabel === "running"
-                                            ? "#52c41a"
-                                            : chatModelStatusLabel === "starting"
-                                                ? "#faad14"
-                                                : chatModelStatusLabel === "error"
-                                                    ? "#ff4d4f"
-                                                    : "#bfbfbf",
-                                }}
-                            />
-                            <span style={{ textTransform: "capitalize" }}>
-                                {starting ? "starting…" : chatModelStatusLabel}
-                            </span>
-                            {chatModelStatus?.baseUrl ? (
-                                <span style={{ opacity: 0.7 }}>{chatModelStatus.baseUrl}</span>
-                            ) : null}
-                        </span>
-                    </div>
-                    <div style={{ marginTop: 6, color: "#666", fontSize: 13 }}>
-                        {starting && "Booting local model…"}
-                        {!starting && chatModelStatus?.status === "running" && "Chat Model Ready."}
-                        {!starting && chatModelStatus?.status === "error" && "Sidecar error — check logs."}
-                    </div>
-                </div>
-
-                <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                        onClick={async () => {
-                            setStarting(true);
-                            setLastError(null);
-                            try {
-                                await window.llama.start();
-                                const st: LlamaStatus = await window.llama.status();
-                                setChatModelStatus(st);
-                                setChatModelReady(true);
-                            } catch (e: any) {
-                                setLastError(String(e?.message ?? e));
-                            } finally {
-                                setStarting(false);
-                            }
-                        }}
-                        disabled={starting}
+        <AppShell
+            sideBar={
+                <SidebarNav
+                    activeItem={sideNavActiveItem}
+                    onSelect={setSideNavActiveItem}
+                    onNewChat={() => setSideNavActiveItem('chat')}
+                    selectedTheme={selectedTheme}
+                    onThemeChange={onToggleTheme}
+                />}
+            mainCanvas={
+                <MainCanvas
+                    children=
+                    {<div
                         style={{
-                            padding: "8px 10px",
-                            borderRadius: 10,
-                            border: "1px solid #ddd",
-                            background: "#fff",
-                            cursor: starting ? "not-allowed" : "pointer",
+                            padding: 16,
+                            maxWidth: 980,
+                            margin: "0 auto",
+                            fontFamily:
+                                'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
                         }}
                     >
-                        Restart
-                    </button>
+                        <header
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                gap: 12,
+                                marginBottom: 12,
+                            }}
+                        >
+                            <div>
+                                <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+                                    <h2 style={{ margin: 0 }}>Local Chatbot</h2>
+                                    <FileWatcherPicker />
+                                    <span style={statusStyle}>
+                                        <span
+                                            style={{
+                                                width: 8,
+                                                height: 8,
+                                                borderRadius: 999,
+                                                background:
+                                                    chatModelStatusLabel === "running"
+                                                        ? "#52c41a"
+                                                        : chatModelStatusLabel === "starting"
+                                                            ? "#faad14"
+                                                            : chatModelStatusLabel === "error"
+                                                                ? "#ff4d4f"
+                                                                : "#bfbfbf",
+                                            }}
+                                        />
+                                        <span style={{ textTransform: "capitalize" }}>
+                                            {starting ? "starting…" : chatModelStatusLabel}
+                                        </span>
+                                        {chatModelStatus?.baseUrl ? (
+                                            <span style={{ opacity: 0.7 }}>{chatModelStatus.baseUrl}</span>
+                                        ) : null}
+                                    </span>
+                                </div>
+                                <div style={{ marginTop: 6, color: "#666", fontSize: 13 }}>
+                                    {starting && "Booting local model…"}
+                                    {!starting && chatModelStatus?.status === "running" && "Chat Model Ready."}
+                                    {!starting && chatModelStatus?.status === "error" && "Sidecar error — check logs."}
+                                </div>
+                            </div>
 
-                    <button
-                        onClick={stop}
-                        disabled={!isGenerating}
-                        style={{
-                            padding: "8px 10px",
-                            borderRadius: 10,
-                            border: "1px solid #ddd",
-                            background: isGenerating ? "#fff" : "#fafafa",
-                            cursor: isGenerating ? "pointer" : "not-allowed",
-                        }}
-                    >
-                        Stop
-                    </button>
-                </div>
-            </header>
-
-            {lastError ? (
-                <div
-                    style={{
-                        border: "1px solid #ffa39e",
-                        background: "#fff1f0",
-                        color: "#a8071a",
-                        padding: 10,
-                        borderRadius: 12,
-                        marginBottom: 12,
-                        fontSize: 13,
-                        whiteSpace: "pre-wrap",
-                    }}
-                >
-                    {lastError}
-                </div>
-            ) : null}
-
-            <div
-                style={{
-                    border: "1px solid #e5e5e5",
-                    borderRadius: 16,
-                    padding: 12,
-                    height: 520,
-                    overflow: "auto",
-                    background: "#fff",
-                }}
-            >
-                {messages
-                    .filter((m) => m.role !== "system")
-                    .map((m, i) => {
-                        const isUser = m.role === "user";
-                        return (
-                            <div
-                                key={i}
-                                style={{
-                                    display: "flex",
-                                    justifyContent: isUser ? "flex-end" : "flex-start",
-                                    marginBottom: 10,
-                                }}
-                            >
-                                <div
+                            <div style={{ display: "flex", gap: 8 }}>
+                                <button
+                                    onClick={async () => {
+                                        setStarting(true);
+                                        setLastError(null);
+                                        try {
+                                            await window.llama.start();
+                                            const st: LlamaStatus = await window.llama.status();
+                                            setChatModelStatus(st);
+                                            setChatModelReady(true);
+                                        } catch (e: any) {
+                                            setLastError(String(e?.message ?? e));
+                                        } finally {
+                                            setStarting(false);
+                                        }
+                                    }}
+                                    disabled={starting}
                                     style={{
-                                        maxWidth: "82%",
-                                        padding: "10px 12px",
-                                        borderRadius: 14,
-                                        border: "1px solid #eee",
-                                        background: isUser ? "#f6ffed" : "#f5f5f5",
-                                        whiteSpace: "pre-wrap",
-                                        lineHeight: 1.35,
+                                        padding: "8px 10px",
+                                        borderRadius: 10,
+                                        border: "1px solid #ddd",
+                                        background: "#fff",
+                                        cursor: starting ? "not-allowed" : "pointer",
                                     }}
                                 >
-                                    <div style={{ fontSize: 12, opacity: 0.6, marginBottom: 4 }}>
-                                        {isUser ? "You" : "Assistant"}
-                                    </div>
-                                    <div style={{ fontSize: 14 }}>
-                                        {m.content || (m.role === "assistant" && isGenerating ? "…" : "")}
-                                    </div>
-                                </div>
+                                    Restart
+                                </button>
+
+                                <button
+                                    onClick={stop}
+                                    disabled={!isGenerating}
+                                    style={{
+                                        padding: "8px 10px",
+                                        borderRadius: 10,
+                                        border: "1px solid #ddd",
+                                        background: isGenerating ? "#fff" : "#fafafa",
+                                        cursor: isGenerating ? "pointer" : "not-allowed",
+                                    }}
+                                >
+                                    Stop
+                                </button>
                             </div>
-                        );
-                    })}
+                        </header>
 
-                <div ref={endRef} />
-            </div>
-
-            {/* RAG Results */}
-            {lastRetrieved.length > 0 ? (
-                <div
-                    style={{
-                        marginTop: 12,
-                        border: "1px solid #e5e5e5",
-                        borderRadius: 12,
-                        padding: 12,
-                        background: "#fafafa",
-                    }}
-                >
-                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
-                        Retrieved context
-                    </div>
-
-                    <div
-                        style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            gap: 8,
-                            flexWrap: "wrap",
-                        }}
-                    >
-                        {lastRetrieved.map((r) => (
+                        {lastError ? (
                             <div
-                                key={r.chunkId}
                                 style={{
+                                    border: "1px solid #ffa39e",
+                                    background: "#fff1f0",
+                                    color: "#a8071a",
                                     padding: 10,
-                                    border: "1px solid #eee",
-                                    borderRadius: 10,
-                                    background: "#fff",
+                                    borderRadius: 12,
+                                    marginBottom: 12,
+                                    fontSize: 13,
+                                    whiteSpace: "pre-wrap",
                                 }}
                             >
-                                <div style={{ fontSize: 12, marginBottom: 4 }}>
-                                    {r.fileName}
-                                </div>
-                                <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>
-                                    distance {r.distance.toFixed(2)}
-                                </div>
-                                {/* <div style={{ fontSize: 13, whiteSpace: "pre-wrap" }}>
-                                    {r.content}
-                                </div> */}
+                                {lastError}
                             </div>
-                        ))}
-                    </div>
-                </div>
-            ) : null}
+                        ) : null}
 
-            {/* Input */}
-            <div style={{ marginTop: 12 }}>
-                <textarea
-                    style={{
-                        width: "100%",
-                        padding: 12,
-                        borderRadius: 14,
-                        border: "1px solid #ddd",
-                        resize: "none",
-                        minHeight: 90,
-                        fontFamily: "inherit",
-                        fontSize: 14,
-                        outline: "none",
-                    }}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Type a message… (Enter to send, Shift+Enter for newline)"
-                    disabled={!chatModelReady || starting}
-                    onKeyDown={(e) => {
-                        // Enter sends; Shift+Enter inserts newline
-                        if (e.key === "Enter" && !e.shiftKey && !(e as any).isComposing) {
-                            e.preventDefault();
-                            send();
-                        }
-                    }}
+                        <div
+                            style={{
+                                border: "1px solid #e5e5e5",
+                                borderRadius: 16,
+                                padding: 12,
+                                height: 520,
+                                overflow: "auto",
+                                background: "#fff",
+                            }}
+                        >
+                            {messages
+                                .filter((m) => m.role !== "system")
+                                .map((m, i) => {
+                                    const isUser = m.role === "user";
+                                    return (
+                                        <div
+                                            key={i}
+                                            style={{
+                                                display: "flex",
+                                                justifyContent: isUser ? "flex-end" : "flex-start",
+                                                marginBottom: 10,
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    maxWidth: "82%",
+                                                    padding: "10px 12px",
+                                                    borderRadius: 14,
+                                                    border: "1px solid #eee",
+                                                    background: isUser ? "#f6ffed" : "#f5f5f5",
+                                                    whiteSpace: "pre-wrap",
+                                                    lineHeight: 1.35,
+                                                }}
+                                            >
+                                                <div style={{ fontSize: 12, opacity: 0.6, marginBottom: 4 }}>
+                                                    {isUser ? "You" : "Assistant"}
+                                                </div>
+                                                <div style={{ fontSize: 14 }}>
+                                                    {m.content || (m.role === "assistant" && isGenerating ? "…" : "")}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                            <div ref={endRef} />
+                        </div>
+
+                        {/* RAG Results */}
+                        {lastRetrieved.length > 0 ? (
+                            <div
+                                style={{
+                                    marginTop: 12,
+                                    border: "1px solid #e5e5e5",
+                                    borderRadius: 12,
+                                    padding: 12,
+                                    background: "#fafafa",
+                                }}
+                            >
+                                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
+                                    Retrieved context
+                                </div>
+
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        gap: 8,
+                                        flexWrap: "wrap",
+                                    }}
+                                >
+                                    {lastRetrieved.map((r) => (
+                                        <div
+                                            key={r.chunkId}
+                                            style={{
+                                                padding: 10,
+                                                border: "1px solid #eee",
+                                                borderRadius: 10,
+                                                background: "#fff",
+                                            }}
+                                        >
+                                            <div style={{ fontSize: 12, marginBottom: 4 }}>
+                                                {r.fileName}
+                                            </div>
+                                            <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>
+                                                distance {r.distance.toFixed(2)}
+                                            </div>
+                                            {/* <div style={{ fontSize: 13, whiteSpace: "pre-wrap" }}>
+                                {r.content}
+                            </div> */}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : null}
+
+                        {/* Input */}
+                        <div style={{ marginTop: 12 }}>
+                            <textarea
+                                style={{
+                                    width: "100%",
+                                    padding: 12,
+                                    borderRadius: 14,
+                                    border: "1px solid #ddd",
+                                    resize: "none",
+                                    minHeight: 90,
+                                    fontFamily: "inherit",
+                                    fontSize: 14,
+                                    outline: "none",
+                                }}
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                placeholder="Type a message… (Enter to send, Shift+Enter for newline)"
+                                disabled={!chatModelReady || starting}
+                                onKeyDown={(e) => {
+                                    // Enter sends; Shift+Enter inserts newline
+                                    if (e.key === "Enter" && !e.shiftKey && !(e as any).isComposing) {
+                                        e.preventDefault();
+                                        send();
+                                    }
+                                }}
+                            />
+
+                            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
+                                <div style={{ fontSize: 12, color: "#888" }}>
+                                    {isGenerating ? "Generating…" : " "}
+                                </div>
+                                <button
+                                    onClick={send}
+                                    disabled={!chatModelReady || starting || isGenerating || !input.trim()}
+                                    style={{
+                                        padding: "10px 14px",
+                                        borderRadius: 12,
+                                        border: "1px solid #ddd",
+                                        background: !chatModelReady || starting || isGenerating || !input.trim() ? "#fafafa" : "#fff",
+                                        cursor: !chatModelReady || starting || isGenerating || !input.trim() ? "not-allowed" : "pointer",
+                                    }}
+                                >
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>}
                 />
-
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
-                    <div style={{ fontSize: 12, color: "#888" }}>
-                        {isGenerating ? "Generating…" : " "}
-                    </div>
-                    <button
-                        onClick={send}
-                        disabled={!chatModelReady || starting || isGenerating || !input.trim()}
-                        style={{
-                            padding: "10px 14px",
-                            borderRadius: 12,
-                            border: "1px solid #ddd",
-                            background: !chatModelReady || starting || isGenerating || !input.trim() ? "#fafafa" : "#fff",
-                            cursor: !chatModelReady || starting || isGenerating || !input.trim() ? "not-allowed" : "pointer",
-                        }}
-                    >
-                        Send
-                    </button>
-                </div>
-            </div>
-        </div>
-        // <AppShell
-        //     sideBar={
-        //         <SidebarNav
-        //             activeItem={sideNavActiveItem}
-        //             onSelect={setSideNavActiveItem}
-        //             onNewChat={() => setSideNavActiveItem('chat')}
-        //             selectedTheme={selectedTheme}
-        //             onThemeChange={onToggleTheme}
-        //         />}
-        //     mainCanvas={
-        //         <MainCanvas
-        //             children={<div></div>}
-        //         />
-        //     }
-        // />
+            }
+        />
     );
 }
 

@@ -51,8 +51,6 @@ export interface LlamaApi {
     ): () => void;
 }
 
-export
-
 declare global {
     interface Window {
         llama: LlamaApi;

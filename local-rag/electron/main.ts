@@ -265,7 +265,7 @@ app.on("before-quit")
 function createWindow() {
     const win = new BrowserWindow({
         width: 1200,
-        height: 800,
+        height: 900,
         webPreferences: {
             preload: path.join(__dirname, "preload.mjs"),
             contextIsolation: true, // preload runs in isolated context
@@ -300,6 +300,7 @@ app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 
+// App shutdown logic
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") app.quit()
 })
@@ -307,5 +308,5 @@ app.on("window-all-closed", () => {
 app.on("before-quit", () => {
     fileWatcher.stop();
     llama.stop();
-    embedder?.stop();
+    embedder.stop();
 });

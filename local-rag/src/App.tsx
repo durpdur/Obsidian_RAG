@@ -1,19 +1,47 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import FileWatcherPicker from "./components/FileWatcherPicker";
-import type { SearchResult } from "./types/global";
+import type { SearchResult, Msg, LlamaStatus } from "./types/global";
+import { useTheme } from "@mui/material/styles";
+import AppShell from "./components/layout/AppShell";
+import SidebarNav from "./components/layout/SidebarNav";
+import MainCanvas from "./components/layout/MainCanvas";
 
-type Msg = { role: "system" | "user" | "assistant"; content: string };
-type Status = { status: "stopped" | "starting" | "running" | "error"; port: number; baseUrl: string };
+type NavKey = 'chat' | 'files' | 'vault' | 'history' | 'storage' | 'help';
 
-function App() {
-    const [chatModelReady, setChatModelReady] = useState(false);
-    const [chatModelStatus, setChatModelStatus] = useState<Status | null>(null);
+type AppProps = {
+    selectedTheme: 'light' | 'dark';
+    onToggleTheme: () => void;
+};
+
+function App({ selectedTheme, onToggleTheme }: AppProps) {
+    /******************************************** 
+    * Layout States
+    ********************************************/
+    const [sideNavActiveItem, setSideNavActiveItem] = useState<NavKey>(`chat`);
+
+    /******************************************** 
+    * States  
+    --------------------------------------
+    - Chat Model
+    - Embedding Model
+    - File Watcher
+    - Database (Maybe)
+    ********************************************/
+    // Overall App State
     const [starting, setStarting] = useState(true);
+    const theme = useTheme();
 
+    // Chat Model
+    const [chatModelReady, setChatModelReady] = useState(false);
+    const [chatModelStatus, setChatModelStatus] = useState<LlamaStatus | null>(null);
+
+    // Messages
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState<Msg[]>([
         { role: "system", content: "You are a helpful assistant." },
     ]);
+
+    // Chat Stream
     const [lastRetrieved, setLastRetrieved] = useState<SearchResult[]>([]);
 
     const [isGenerating, setIsGenerating] = useState(false);
@@ -41,15 +69,15 @@ function App() {
             padding: "6px 10px",
             borderRadius: 999,
             fontSize: 12,
-            border: "1px solid #ddd",
+            border: `1px solid ${theme.palette.outline.variant}`,
             userSelect: "none",
         };
         if (!chatModelStatus) return base;
-        if (chatModelStatus.status === "running") return { ...base, borderColor: "#b7eb8f" };
-        if (chatModelStatus.status === "starting") return { ...base, borderColor: "#ffe58f" };
-        if (chatModelStatus.status === "error") return { ...base, borderColor: "#ffa39e" };
+        if (chatModelStatus.status === "running") return { ...base, borderColor: theme.palette.secondary.main };
+        if (chatModelStatus.status === "starting") return { ...base, borderColor: theme.palette.primary.main };
+        if (chatModelStatus.status === "error") return { ...base, borderColor: theme.palette.error.main };
         return base;
-    }, [chatModelStatus]);
+    }, [chatModelStatus, theme]);
 
     useEffect(() => {
         let mounted = true;
@@ -60,7 +88,7 @@ function App() {
             try {
                 await window.llama.start();
                 await window.api.embedder.start();
-                const st: Status = await window.llama.status();
+                const st: LlamaStatus = await window.llama.status();
                 if (!mounted) return;
                 setChatModelStatus(st);
                 setChatModelReady(st.status === "running" || st.status === "starting"); // allow UI; chat guarded below
@@ -76,7 +104,7 @@ function App() {
 
         const interval = setInterval(async () => {
             try {
-                const st: Status = await window.llama.status();
+                const st: LlamaStatus = await window.llama.status();
                 if (mounted) setChatModelStatus(st);
             } catch {
                 // ignore
@@ -286,7 +314,7 @@ function App() {
                             setLastError(null);
                             try {
                                 await window.llama.start();
-                                const st: Status = await window.llama.status();
+                                const st: LlamaStatus = await window.llama.status();
                                 setChatModelStatus(st);
                                 setChatModelReady(true);
                             } catch (e: any) {
@@ -483,6 +511,21 @@ function App() {
                 </div>
             </div>
         </div>
+        // <AppShell
+        //     sideBar={
+        //         <SidebarNav
+        //             activeItem={sideNavActiveItem}
+        //             onSelect={setSideNavActiveItem}
+        //             onNewChat={() => setSideNavActiveItem('chat')}
+        //             selectedTheme={selectedTheme}
+        //             onThemeChange={onToggleTheme}
+        //         />}
+        //     mainCanvas={
+        //         <MainCanvas
+        //             children={<div></div>}
+        //         />
+        //     }
+        // />
     );
 }
 

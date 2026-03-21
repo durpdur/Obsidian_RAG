@@ -1,0 +1,148 @@
+import type { ReactNode } from 'react';
+import { Box } from '@mui/material';
+
+type AppShellProps = {
+    sideBar: ReactNode;
+    topBar?: ReactNode;
+    bottomDock?: ReactNode;
+    mainCanvas: ReactNode;
+};
+
+const SIDEBAR_WIDTH = 256;
+
+export default function AppShell({
+    sideBar,
+    topBar,
+    bottomDock,
+    mainCanvas,
+}: AppShellProps) {
+    return (
+        <Box
+            sx={(theme) => ({
+                minHeight: '100vh',
+                backgroundColor: theme.palette.background.default,
+                color: theme.palette.text.primary,
+            })}
+        >
+            {/* Fixed sidebar */}
+            <Box
+                component="aside"
+                sx={(theme) => ({
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: SIDEBAR_WIDTH,
+                    height: '100vh',
+                    zIndex: 50,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    py: 3,
+                    backgroundColor: theme.palette.surface.low,
+                    borderRight: `1px solid ${theme.palette.outline.variant}`,
+                })}
+            >
+                {sideBar}
+            </Box>
+
+            {/* Main canvas */}
+            <Box
+                component="main"
+                sx={(theme) => ({
+                    ml: `${SIDEBAR_WIDTH}px`,
+                    minHeight: '100vh',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    backgroundColor: theme.palette.background.default,
+                })}
+            >
+                {/* Background detail */}
+                <Box
+                    aria-hidden
+                    sx={(theme) => ({
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        width: 500,
+                        height: 500,
+                        borderRadius: '50%',
+                        backgroundColor: theme.palette.primary.main,
+                        opacity: 0.05,
+                        filter: 'blur(120px)',
+                        transform: 'translate(50%, -50%)',
+                        pointerEvents: 'none',
+                    })}
+                />
+                <Box
+                    aria-hidden
+                    sx={(theme) => ({
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        width: 300,
+                        height: 300,
+                        borderRadius: '50%',
+                        backgroundColor: theme.palette.primary.dark,
+                        opacity: 0.1,
+                        filter: 'blur(100px)',
+                        transform: 'translate(-33%, 33%)',
+                        pointerEvents: 'none',
+                    })}
+                />
+
+                {/* Sticky top bar */}
+                {topBar && (
+                    <Box
+                        sx={(theme) => ({
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 40,
+                            minHeight: 56,
+                            display: 'flex',
+                            alignItems: 'center',
+                            px: 4,
+                            backdropFilter: 'blur(12px)',
+                            backgroundColor:
+                                theme.palette.mode === 'dark'
+                                    ? 'rgba(14,14,14,0.5)'
+                                    : 'rgba(252,249,248,0.72)',
+                            borderBottom: `1px solid ${theme.palette.outline.variant}`,
+                        })}
+                    >
+                        {topBar}
+                    </Box>
+                )}
+
+                {/* Main content area */}
+                <Box
+                    sx={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        width: '100%',
+                    }}
+                >
+                    {mainCanvas}
+                </Box>
+
+                {/* Bottom Dock */}
+                {bottomDock && (
+                    <Box
+                        sx={{
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            px: 4,
+                            pb: 6,
+                            pt: 2,
+                        }}
+                    >
+                        {bottomDock}
+                    </Box>
+                )}
+            </Box>
+        </Box>
+    );
+}

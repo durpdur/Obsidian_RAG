@@ -15,6 +15,7 @@ export default function AppShell({
     return (
         <Box
             sx={(theme) => ({
+                flex: 1,
                 minHeight: '100vh',
                 backgroundColor: theme.palette.background.default,
                 color: theme.palette.text.primary,
@@ -45,11 +46,12 @@ export default function AppShell({
                 component="main"
                 sx={(theme) => ({
                     ml: `${SIDEBAR_WIDTH}px`,
-                    minHeight: '100vh',
+                    height: '100vh',
                     display: 'flex',
                     flexDirection: 'column',
                     position: 'relative',
                     backgroundColor: theme.palette.background.default,
+                    overflow: 'hidden',
                 })}
             >
                 {/* Decorative Background Circle 1 */}
@@ -98,6 +100,7 @@ export default function AppShell({
                         width: '100%',
                         position: 'relative',
                         zIndex: 1,
+                        minHeight: 0,
                     }}
                 >
                     {mainCanvas}

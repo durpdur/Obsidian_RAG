@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
     Alert,
     Box,
@@ -12,6 +12,7 @@ import {
     useTheme,
 } from "@mui/material";
 import type { Msg, SearchResult } from "../../types/global";
+import { pink } from "@mui/material/colors";
 
 type ChatThreadContentProps = {
     messages: Msg[];
@@ -105,13 +106,12 @@ function ChatBubble({ message, isGenerating }: { message: Msg; isGenerating: boo
                     variant="caption"
                     sx={{
                         display: "block",
-                        mb: 0.5,
-                        color: isUser ? theme.palette.primary.main : theme.palette.text.secondary,
+                        color: isUser ? "" : theme.palette.text.secondary,
                         textTransform: "uppercase",
                         letterSpacing: "0.08em",
                     }}
                 >
-                    {isUser ? "You" : "Assistant"}
+                    {isUser ? "" : "Obi"}
                 </Typography>
 
                 <Typography
@@ -141,13 +141,17 @@ function ChatThreadContent({
     starting,
 }: ChatThreadContentProps) {
     const theme = useTheme();
-
-    const visibleMessages = useMemo(
-        () => messages.filter((m) => m.role !== "system"),
-        [messages]
-    );
-
+    const visibleMessages = useMemo(() => messages.filter((m) => m.role !== "system"), [messages]);
     const hasConversation = visibleMessages.length > 0;
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        if (!hasConversation) return;
+
+        messagesEndRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+        });
+    }, [visibleMessages.length, isGenerating, hasConversation]);
 
     const suggestionPrompts = [
         "What causes a false burrow alert at South Lintel?",
@@ -158,47 +162,20 @@ function ChatThreadContent({
     return (
         <Box
             sx={{
-                position: "relative",
-                minHeight: "calc(100vh - 120px)",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "space-between",
-                overflow: "hidden",
+                flex: 1,
+                minHeight: 0,
             }}
         >
-            {/* Background glow */}
-            <Box
-                sx={{
-                    position: "absolute",
-                    top: -140,
-                    right: -160,
-                    width: 420,
-                    height: 420,
-                    borderRadius: "50%",
-                    background: "rgba(209, 188, 255, 0.06)",
-                    filter: "blur(100px)",
-                    pointerEvents: "none",
-                }}
-            />
-            <Box
-                sx={{
-                    position: "absolute",
-                    left: -100,
-                    bottom: -100,
-                    width: 280,
-                    height: 280,
-                    borderRadius: "50%",
-                    background: "rgba(96, 56, 178, 0.12)",
-                    filter: "blur(90px)",
-                    pointerEvents: "none",
-                }}
-            />
 
+            {/* Prompt Card and Messages Wrapper */}
             <Box
                 sx={{
                     position: "relative",
                     zIndex: 1,
                     flex: 1,
+                    minHeight: 0,
                     width: "100%",
                     maxWidth: 980,
                     mx: "auto",
@@ -207,6 +184,7 @@ function ChatThreadContent({
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: hasConversation ? "flex-start" : "center",
+                    overflow: "auto",
                 }}
             >
                 {lastError && (
@@ -216,6 +194,7 @@ function ChatThreadContent({
                 )}
 
                 {!hasConversation ? (
+                    // Prompt Cards
                     <Box
                         sx={{
                             width: "100%",
@@ -266,7 +245,7 @@ function ChatThreadContent({
                                 fontSize: { xs: 15, md: 18 },
                             }}
                         >
-                            Access your private knowledge base, processed entirely on your local hardware.
+                            Your data, processed on your local hardware.
                         </Typography>
 
                         <Box
@@ -299,85 +278,27 @@ function ChatThreadContent({
                         </Box>
                     </Box>
                 ) : (
-                    <Card
-                        variant="outlined"
+                    // Chat Messages
+                    <Stack
+                        spacing={1.25}
                         sx={{
+                            p: 2,
+                            width: '100%',
                             mt: 1,
-                            backgroundColor: "rgba(19, 19, 19, 0.72)",
-                            backdropFilter: "blur(12px)",
-                            borderColor: "rgba(72,72,72,0.8)",
-                            overflow: "hidden",
                         }}
                     >
-                        <Box
-                            sx={{
-                                px: 2,
-                                py: 1.25,
-                                borderBottom: `1px solid ${theme.palette.outline.variant}`,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                            }}
-                        >
-                            <Typography
-                                variant="caption"
-                                sx={{
-                                    color: theme.palette.text.secondary,
-                                    textTransform: "uppercase",
-                                    letterSpacing: "0.08em",
-                                }}
-                            >
-                                Conversation
-                            </Typography>
-
-                            {lastRetrieved.length > 0 && (
-                                <Stack direction="row" spacing={0.75} useFlexGap flexWrap="wrap">
-                                    {lastRetrieved.map((r) => (
-                                        <Chip
-                                            key={r.chunkId}
-                                            size="small"
-                                            variant="outlined"
-                                            label={`${r.fileName} · ${r.distance.toFixed(2)}`}
-                                            sx={{
-                                                maxWidth: 220,
-                                                height: 24,
-                                                backgroundColor: theme.palette.surface.mid,
-                                                borderColor: theme.palette.outline.variant,
-                                                "& .MuiChip-label": {
-                                                    px: 1,
-                                                    fontSize: 11,
-                                                    color: theme.palette.text.secondary,
-                                                    whiteSpace: "nowrap",
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                },
-                                            }}
-                                        />
-                                    ))}
-                                </Stack>
-                            )}
-                        </Box>
-
-                        <Stack
-                            spacing={1.25}
-                            sx={{
-                                p: 2,
-                                maxHeight: 540,
-                                overflowY: "auto",
-                            }}
-                        >
-                            {visibleMessages.map((m, i) => (
-                                <ChatBubble key={i} message={m} isGenerating={isGenerating} />
-                            ))}
-                        </Stack>
-                    </Card>
+                        {visibleMessages.map((m, i) => (
+                            <ChatBubble key={i} message={m} isGenerating={isGenerating} />
+                        ))}
+                        <Box ref={messagesEndRef} />
+                    </Stack>
                 )}
             </Box>
 
             {/* Composer */}
             <Box
                 sx={{
-                    position: "relative",
+                    flexShrink: 0,
                     zIndex: 1,
                     width: "100%",
                     maxWidth: 980,
@@ -385,36 +306,35 @@ function ChatThreadContent({
                     px: { xs: 2, md: 3 },
                     pb: { xs: 3, md: 4 },
                     pt: 2,
+                    backgroundColor: "transparent",
                 }}
             >
-                <Box sx={{ position: "relative" }}>
+                <Box sx={{ position: "relative", backgroundColor: "transparent", }}>
                     <Box
                         sx={{
-                            position: "absolute",
                             inset: 0,
                             borderRadius: 3,
-                            background: "rgba(209, 188, 255, 0.06)",
-                            filter: "blur(20px)",
                             pointerEvents: "none",
+                            backgroundColor: "transparent",
                         }}
                     />
-
                     <Card
                         variant="outlined"
                         sx={{
                             position: "relative",
                             overflow: "hidden",
-                            backgroundColor: "rgba(38, 38, 38, 0.78)",
-                            backdropFilter: "blur(18px)",
-                            borderColor: "rgba(72,72,72,0.5)",
+                            backgroundColor: theme.palette.background.default,
+                            border: "0.75px solid",
+                            borderColor: theme.palette.primary.contrastText,
                             borderRadius: 3,
                         }}
                     >
+                        {/* Attachment and Canvas Buttons */}
                         <Box
                             sx={{
                                 px: 2,
                                 py: 1.25,
-                                borderBottom: "1px solid rgba(72,72,72,0.35)",
+                                borderBottom: `0.5px solid ${theme.palette.divider}`,
                                 display: "flex",
                                 alignItems: "center",
                                 gap: 1.5,
@@ -492,7 +412,8 @@ function ChatThreadContent({
                             </Button>
                         </Box>
 
-                        {lastRetrieved.length > 0 && !hasConversation && (
+                        {/* Retrieved Documents */}
+                        {lastRetrieved.length > 0 && (
                             <Box
                                 sx={{
                                     px: 2,
@@ -511,7 +432,7 @@ function ChatThreadContent({
                                         sx={{
                                             maxWidth: 220,
                                             height: 24,
-                                            backgroundColor: theme.palette.surface.mid,
+                                            backgroundColor: "transparent",
                                             borderColor: theme.palette.outline.variant,
                                             "& .MuiChip-label": {
                                                 px: 1,
@@ -527,6 +448,7 @@ function ChatThreadContent({
                             </Box>
                         )}
 
+                        {/* Text Field & Send/Stop Button */}
                         <Box
                             sx={{
                                 display: "flex",
@@ -592,10 +514,9 @@ function ChatThreadContent({
 
                         <Box
                             sx={{
-                                px: 2,
+                                px: 1,
                                 py: 1,
-                                backgroundColor: "rgba(0,0,0,0.18)",
-                                borderTop: `1px solid rgba(72,72,72,0.28)`,
+                                borderTop: `1px solid ${theme.palette.divider}`,
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
@@ -604,10 +525,11 @@ function ChatThreadContent({
                             }}
                         >
                             <Stack direction="row" spacing={0.75} alignItems="center">
-                                <Icon>lock</Icon>
+                                <Icon sx={{ fontSize: 16 }}>lock</Icon>
                                 <Typography
                                     variant="caption"
                                     sx={{
+                                        fontSize: 10,
                                         color: theme.palette.text.secondary,
                                         textTransform: "uppercase",
                                         letterSpacing: "0.08em",
@@ -620,7 +542,7 @@ function ChatThreadContent({
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    color: "rgba(172,171,170,0.6)",
+                                    color: theme.palette.text.disabled,
                                     textTransform: "uppercase",
                                     letterSpacing: "0.08em",
                                 }}

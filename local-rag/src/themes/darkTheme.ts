@@ -55,7 +55,7 @@ const darkTheme = createTheme({
             disabled: '#767575',
         },
 
-        divider: '#484848',
+        divider: '#383838',
 
         action: {
             active: '#D1BCFF',

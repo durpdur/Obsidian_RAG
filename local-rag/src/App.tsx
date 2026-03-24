@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import FileWatcherPicker from "./components/FileWatcherPicker";
 import type { SearchResult, Msg, LlamaStatus } from "./types/global";
-import { useTheme } from "@mui/material/styles";
 import AppShell from "./components/layout/AppShell";
 import SidebarNav from "./components/layout/SidebarNav";
 import MainCanvas from "./components/layout/MainCanvas";
@@ -31,7 +30,6 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
     ********************************************/
     // Overall App State
     const [starting, setStarting] = useState(true);
-    const theme = useTheme();
 
     // Chat Model
     const [chatModelReady, setChatModelReady] = useState(false);
@@ -49,14 +47,7 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
     const [isGenerating, setIsGenerating] = useState(false);
     const [lastError, setLastError] = useState<string | null>(null);
 
-    const endRef = useRef<HTMLDivElement | null>(null);
     const messagesRef = useRef<Msg[]>(messages);
-
-    useEffect(() => {
-        messagesRef.current = messages;
-        // auto-scroll to bottom
-        endRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
 
     useEffect(() => {
         let mounted = true;
@@ -255,179 +246,6 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
                     }
 
                     canvasContent={
-                        // <div
-                        //     style={{
-                        //         padding: 16,
-                        //         paddingTop: 10,
-                        //         maxWidth: 980,
-                        //         margin: "0 auto",
-                        //         fontFamily:
-                        //             'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
-                        //     }}
-                        // >
-
-                        //     {lastError ? (
-                        //         <div
-                        //             style={{
-                        //                 border: "1px solid #ffa39e",
-                        //                 background: "#fff1f0",
-                        //                 color: "#a8071a",
-                        //                 padding: 10,
-                        //                 borderRadius: 12,
-                        //                 marginBottom: 12,
-                        //                 fontSize: 13,
-                        //                 whiteSpace: "pre-wrap",
-                        //             }}
-                        //         >
-                        //             {lastError}
-                        //         </div>
-                        //     ) : null}
-
-                        //     {/* Chat Messages */}
-                        //     <div
-                        //         style={{
-                        //             border: "1px solid #e5e5e5",
-                        //             borderRadius: 16,
-                        //             padding: 12,
-                        //             height: 520,
-                        //             overflow: "auto",
-                        //         }}
-                        //     >
-                        //         {messages
-                        //             .filter((m) => m.role !== "system")
-                        //             .map((m, i) => {
-                        //                 const isUser = m.role === "user";
-                        //                 return (
-                        //                     <div
-                        //                         key={i}
-                        //                         style={{
-                        //                             display: "flex",
-                        //                             justifyContent: isUser ? "flex-end" : "flex-start",
-                        //                             marginBottom: 10,
-                        //                         }}
-                        //                     >
-                        //                         <div
-                        //                             style={{
-                        //                                 maxWidth: "82%",
-                        //                                 padding: "10px 12px",
-                        //                                 borderRadius: 14,
-                        //                                 border: "1px solid #eee",
-                        //                                 background: isUser ? "#f6ffed" : "#f5f5f5",
-                        //                                 whiteSpace: "pre-wrap",
-                        //                                 lineHeight: 1.35,
-                        //                             }}
-                        //                         >
-                        //                             <div style={{ fontSize: 12, opacity: 0.6, marginBottom: 4 }}>
-                        //                                 {isUser ? "You" : "Assistant"}
-                        //                             </div>
-                        //                             <div style={{ fontSize: 14 }}>
-                        //                                 {m.content || (m.role === "assistant" && isGenerating ? "…" : "")}
-                        //                             </div>
-                        //                         </div>
-                        //                     </div>
-                        //                 );
-                        //             })}
-
-                        //         <div ref={endRef} />
-                        //     </div>
-
-                        //     {/* RAG Results */}
-                        //     {lastRetrieved.length > 0 ? (
-                        //         <div
-                        //             style={{
-                        //                 marginTop: 12,
-                        //                 border: "1px solid #e5e5e5",
-                        //                 borderRadius: 12,
-                        //                 padding: 12,
-                        //                 background: "#fafafa",
-                        //             }}
-                        //         >
-                        //             <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
-                        //                 Retrieved context
-                        //             </div>
-
-                        //             <div
-                        //                 style={{
-                        //                     display: "flex",
-                        //                     flexDirection: "row",
-                        //                     gap: 8,
-                        //                     flexWrap: "wrap",
-                        //                 }}
-                        //             >
-                        //                 {lastRetrieved.map((r) => (
-                        //                     <div
-                        //                         key={r.chunkId}
-                        //                         style={{
-                        //                             padding: 10,
-                        //                             border: "1px solid #eee",
-                        //                             borderRadius: 10,
-                        //                             background: "#fff",
-                        //                         }}
-                        //                     >
-                        //                         <div style={{ fontSize: 12, marginBottom: 4 }}>
-                        //                             {r.fileName}
-                        //                         </div>
-                        //                         <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>
-                        //                             distance {r.distance.toFixed(2)}
-                        //                         </div>
-                        //                         {/* <div style={{ fontSize: 13, whiteSpace: "pre-wrap" }}>
-                        //             {r.content}
-                        //         </div> */}
-                        //                     </div>
-                        //                 ))}
-                        //             </div>
-                        //         </div>
-                        //     ) : null}
-
-                        //     {/* Input */}
-                        //     <div style={{ marginTop: 12 }}>
-                        //         <textarea
-                        //             style={{
-                        //                 width: "100%",
-                        //                 padding: 12,
-                        //                 borderRadius: 14,
-                        //                 border: "1px solid #ddd",
-                        //                 resize: "none",
-                        //                 minHeight: 90,
-                        //                 fontFamily: "inherit",
-                        //                 fontSize: 14,
-                        //                 outline: "none",
-                        //             }}
-                        //             value={input}
-                        //             onChange={(e) => setInput(e.target.value)}
-                        //             placeholder="Type a message… (Enter to send, Shift+Enter for newline)"
-                        //             disabled={!chatModelReady || starting}
-                        //             onKeyDown={(e) => {
-                        //                 // Enter sends; Shift+Enter inserts newline
-                        //                 if (e.key === "Enter" && !e.shiftKey && !(e as any).isComposing) {
-                        //                     e.preventDefault();
-                        //                     send();
-                        //                 }
-                        //             }}
-                        //         />
-
-                        //         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
-                        //             <div style={{ fontSize: 12, color: "#888" }}>
-                        //                 {isGenerating ? "Generating…" : " "}
-                        //             </div>
-                        //             <button
-                        //                 onClick={send}
-                        //                 disabled={!chatModelReady || starting || isGenerating || !input.trim()}
-                        //                 style={{
-                        //                     padding: "10px 14px",
-                        //                     borderRadius: 12,
-                        //                     border: "1px solid #ddd",
-                        //                     background: !chatModelReady || starting || isGenerating || !input.trim() ? "#fafafa" : "#fff",
-                        //                     cursor: !chatModelReady || starting || isGenerating || !input.trim() ? "not-allowed" : "pointer",
-                        //                 }}
-                        //             >
-                        //                 Send
-                        //             </button>
-                        //         </div>
-                        //     </div>
-                        // </div>
-
-
                         <ChatThreadContent
                             messages={messages}
                             lastError={lastError}

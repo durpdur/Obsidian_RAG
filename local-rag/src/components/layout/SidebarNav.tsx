@@ -103,7 +103,7 @@ function SidebarNav({
                         color: theme.palette.primary.contrastText,
                     })}
                 >
-                    <Icon sx={{ fontSize: 18 }}>account_tree</Icon>
+                    <Icon>tokens</Icon>
                 </Box>
 
                 <Box>

@@ -21,6 +21,7 @@ type ChatThreadContentProps = {
     input: string;
     setInput: (value: string) => void;
     send: () => void;
+    stop: () => void;
     isGenerating: boolean;
     chatModelReady: boolean;
     starting: boolean;
@@ -111,7 +112,17 @@ function ChatBubble({ message, isGenerating }: { message: Msg; isGenerating: boo
                         letterSpacing: "0.08em",
                     }}
                 >
-                    {isUser ? "" : "Obi"}
+                    {isUser ? ("") : (<Box
+                        component="span"
+                        sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                        }}
+                    >
+                        <Icon sx={{ fontSize: 15, color: theme.palette.primary.main }}>tokens</Icon>
+                        Obi
+                    </Box>)}
                 </Typography>
 
                 <Typography
@@ -136,6 +147,7 @@ function ChatThreadContent({
     input,
     setInput,
     send,
+    stop,
     isGenerating,
     chatModelReady,
     starting,
@@ -494,22 +506,40 @@ function ChatThreadContent({
                                 }}
                             />
 
-                            <Button
-                                variant="contained"
-                                onClick={send}
-                                disabled={
-                                    !chatModelReady || starting || isGenerating || !input.trim()
-                                }
-                                sx={{
-                                    minWidth: 44,
-                                    width: 44,
-                                    height: 44,
-                                    borderRadius: 2,
-                                    p: 0,
-                                }}
-                            >
-                                <Icon>arrow_forward</Icon>
-                            </Button>
+                            {/* Stop Start Circle */}
+                            {isGenerating ? (
+                                <Button
+                                    variant="contained"
+                                    onClick={stop}
+                                    disabled={!chatModelReady || starting}
+                                    sx={{
+                                        minWidth: 44,
+                                        width: 44,
+                                        height: 44,
+                                        borderRadius: 2,
+                                        p: 0,
+                                    }}
+                                >
+                                    <Icon>stop_circle</Icon>
+                                </Button>
+                            ) : (
+                                <Button
+                                    variant="contained"
+                                    onClick={send}
+                                    disabled={
+                                        !chatModelReady || starting || isGenerating || !input.trim()
+                                    }
+                                    sx={{
+                                        minWidth: 44,
+                                        width: 44,
+                                        height: 44,
+                                        borderRadius: 2,
+                                        p: 0,
+                                    }}
+                                >
+                                    <Icon>arrow_forward</Icon>
+                                </Button>
+                            )}
                         </Box>
 
                         <Box

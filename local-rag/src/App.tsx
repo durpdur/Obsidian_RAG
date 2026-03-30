@@ -223,6 +223,44 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
         };
     };
 
+    const renderCanvasContent = () => {
+        switch (sideNavActiveItem) {
+            case "chat":
+                return (
+                    <ChatThreadContent
+                        messages={messages}
+                        lastError={lastError}
+                        lastRetrieved={lastRetrieved}
+                        input={input}
+                        setInput={setInput}
+                        send={send}
+                        stop={stop}
+                        isGenerating={isGenerating}
+                        chatModelReady={chatModelReady}
+                        starting={starting}
+                    />
+                );
+
+            case "files":
+                return <FileWatcherPicker />;
+
+            case "vault":
+                return <div>Vault view</div>;
+
+            case "history":
+                return <div>History view</div>;
+
+            case "storage":
+                return <div>Storage view</div>;
+
+            case "help":
+                return <div>Help view</div>;
+
+            default:
+                return null;
+        }
+    };
+
     return (
         <AppShell
             sideBar={
@@ -239,25 +277,13 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
                         <ChatThreadTopBar
                             starting={starting}
                             chatModelStatus={chatModelStatus}
-                            sessionLabel="New Session"
+                            sessionLabel={sideNavActiveItem}
                             homeLabel="Home"
                             statusLabel={chatModelStatus?.status ?? "unknown"}
                         />
                     }
 
-                    canvasContent={
-                        <ChatThreadContent
-                            messages={messages}
-                            lastError={lastError}
-                            lastRetrieved={lastRetrieved}
-                            input={input}
-                            setInput={setInput}
-                            send={send}
-                            isGenerating={isGenerating}
-                            chatModelReady={chatModelReady}
-                            starting={starting}
-                        />
-                    }
+                    canvasContent={renderCanvasContent()}
 
                     bottomDock={<div></div>}
                 />

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FileWatcherPicker from "./components/FileWatcherPicker";
 import type { SearchResult, Msg, LlamaStatus } from "./types/global";
 import AppShell from "./components/layout/AppShell";

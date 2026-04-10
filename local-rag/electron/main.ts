@@ -82,6 +82,9 @@ ipcMain.on("llama:chat_stream_start", async (event, { requestId, messages, tempe
     const ac = new AbortController();
     streamAborters.set(wcId, ac);
 
+    console.log(messages); // debug
+
+
     try {
         // Start fetch to local server with "stream: true" (SSE)
         const res = await fetch(`${llama.getStatus().baseUrl}/v1/chat/completions`, {
@@ -266,6 +269,8 @@ function createWindow() {
     const win = new BrowserWindow({
         width: 1200,
         height: 900,
+        x: 0,
+        y: 0,
         webPreferences: {
             preload: path.join(__dirname, "preload.mjs"),
             contextIsolation: true, // preload runs in isolated context
@@ -276,7 +281,7 @@ function createWindow() {
     if (isDev) {
         const devUrl = process.env.VITE_DEV_SERVER_URL ?? "http://localhost:5173";
         win.loadURL(devUrl);
-        // win.webContents.openDevTools() // Auto opens dev tools
+        win.webContents.openDevTools() // Auto opens dev tools
     } else {
         win.loadFile(path.join(__dirname, "../dist/index.html"))
     }

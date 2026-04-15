@@ -32,6 +32,12 @@ contextBridge.exposeInMainWorld("llama", {
         return () => ipcRenderer.removeListener("llama:chat_stream_delta", handler);
     },
 
+    onToolCallDelta: (cb: (payload: StreamDeltaPayload) => void) => {
+        const handler = (_: unknown, payload: StreamDeltaPayload) => cb(payload);
+        ipcRenderer.on("llama:tool_call_delta", handler);
+        return () => ipcRenderer.removeListener("llama:tool_call_delta", handler);
+    },
+
     onChatStreamDone: (cb: (payload: StreamDonePayload) => void) => {
         const handler = (_: unknown, payload: StreamDonePayload) => cb(payload);
         ipcRenderer.on("llama:chat_stream_done", handler);

@@ -38,7 +38,7 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
     // Messages
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState<Msg[]>([
-        { role: "system", content: "You are a helpful assistant." },
+        { role: "system", content: "You are a helpful assistant. Use the search_files tool when additional context is needed" },
     ]);
 
     // Chat Stream
@@ -48,6 +48,10 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
     const [lastError, setLastError] = useState<string | null>(null);
 
     const messagesRef = useRef<Msg[]>(messages);
+
+    useEffect(() => {
+        messagesRef.current = messages;
+    }, [messages]);
 
     useEffect(() => {
         let mounted = true;
@@ -104,6 +108,7 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
         setInput("");
 
         const userMsg: Msg = { role: "user", content };
+        const history = messagesRef.current;
 
         // Optimistic UI update: add user message + empty assistant message (we'll fill it with deltas)
         setMessages((prev) => [...prev, userMsg, { role: "assistant", content: "" }]);
@@ -128,11 +133,48 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
             setLastError(`RAG search failed: ${String(e?.message ?? e)}`);
         }
 
-        const history = messagesRef.current;
-        const nextMessages = ragSystemMsg
-            ? [...history, ragSystemMsg, userMsg]
-            : [...history, userMsg];
+        const nextMessages = [...history, userMsg];
+        // ragSystemMsg
+        //     ? [...history, ragSystemMsg, userMsg]
+        //     : [...history, userMsg];
 
+        // Subscribe to tool call events
+        const offTool = window.llama.onToolCallDelta?.((payload: any) => {
+            if (payload?.requestId !== requestId) return;
+            const incoming = payload?.toolCalls;
+            if (!incoming) return;
+
+            setMessages((prev) => {
+                const i = prev.length - 1;
+                const last = prev[i];
+                if (!last || last.role !== "assistant") return prev;
+
+                const existing = last.toolCalls ?? [];
+                const merged = [...existing];
+
+                for (const tc of incoming) {
+                    const idx = tc.index ?? 0;
+                    const prevTc = merged[idx] ?? { index: idx, function: { name: "", arguments: "" } };
+
+                    merged[idx] = {
+                        ...prevTc,
+                        ...tc,
+                        function: {
+                            name: (prevTc.function?.name ?? "") + (tc.function?.name ?? ""),
+                            arguments:
+                                (prevTc.function?.arguments ?? "") + (tc.function?.arguments ?? ""),
+                        },
+                    };
+                }
+
+                const next = prev.slice();
+                next[i] = {
+                    ...last,
+                    toolCalls: merged,
+                };
+                return next;
+            });
+        });
 
         // Subscribe to streaming events
         const offDelta = window.llama.onChatStreamDelta?.((payload: any) => {
@@ -153,6 +195,7 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
 
         const cleanup = () => {
             try { offDelta?.(); } catch { }
+            try { offTool?.(); } catch { }
             try { offDone?.(); } catch { }
             try { offErr?.(); } catch { }
         };
@@ -188,7 +231,7 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
             window.llama.chatStreamStart({
                 requestId,
                 messages: nextMessages,
-                temperature: 0.2,
+                // temperature: 0.4,
             });
         } catch (e: any) {
             setIsGenerating(false);
@@ -196,6 +239,11 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
             cleanup();
         }
     };
+
+    const latestAssistantToolCalls =
+        [...messages]
+            .reverse()
+            .find((m) => m.role === "assistant" && m.toolCalls?.length)?.toolCalls ?? [];
 
     const buildRagSystemMessage = (results: SearchResult[]): Msg | null => {
         if (!results.length) return null;
@@ -285,7 +333,42 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
 
                     canvasContent={renderCanvasContent()}
 
-                    bottomDock={<div></div>}
+                    bottomDock={<div style={{ padding: 12, borderTop: "1px solid #333", fontSize: 12 }}>
+                        <div style={{ fontWeight: 600, marginBottom: 8 }}>Tool Call Debug</div>
+
+                        {!latestAssistantToolCalls.length ? (
+                            <div>No tool calls yet.</div>
+                        ) : (
+                            latestAssistantToolCalls.map((tc, idx) => (
+                                <div
+                                    key={tc.id ?? idx}
+                                    style={{
+                                        marginBottom: 10,
+                                        padding: 10,
+                                        border: "1px solid #444",
+                                        borderRadius: 8,
+                                    }}
+                                >
+                                    <div><strong>Index:</strong> {tc.index}</div>
+                                    <div><strong>ID:</strong> {tc.id ?? "(none yet)"}</div>
+                                    <div><strong>Type:</strong> {tc.type ?? "(none yet)"}</div>
+                                    <div><strong>Name:</strong> {tc.function?.name ?? "(streaming...)"}</div>
+                                    <div style={{ marginTop: 6 }}>
+                                        <strong>Arguments:</strong>
+                                        <pre
+                                            style={{
+                                                whiteSpace: "pre-wrap",
+                                                wordBreak: "break-word",
+                                                marginTop: 4,
+                                            }}
+                                        >
+                                            {tc.function?.arguments ?? ""}
+                                        </pre>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>}
                 />
             }
         />

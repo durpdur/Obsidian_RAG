@@ -12,7 +12,9 @@ import {
     useTheme,
 } from "@mui/material";
 import type { Msg, SearchResult } from "../../types/global";
-import { pink } from "@mui/material/colors";
+
+import PromptCard from "./PromptCard";
+import ChatBubble from "./ChatBubble";
 
 type ChatThreadContentProps = {
     messages: Msg[];
@@ -26,119 +28,6 @@ type ChatThreadContentProps = {
     chatModelReady: boolean;
     starting: boolean;
 };
-
-type PromptCardProps = {
-    icon: React.ReactNode;
-    title: string;
-    body: string;
-    wide?: boolean;
-    onClick?: () => void;
-};
-
-function PromptCard({ icon, title, body, wide, onClick }: PromptCardProps) {
-    const theme = useTheme();
-
-    return (
-        <Card
-            variant="outlined"
-            onClick={onClick}
-            sx={{
-                p: 2.25,
-                cursor: onClick ? "pointer" : "default",
-                backgroundColor: theme.palette.surface.low,
-                borderColor: "transparent",
-                transition: "all 180ms ease",
-                gridColumn: wide ? { md: "span 2" } : undefined,
-                "&:hover": {
-                    backgroundColor: theme.palette.surface.high,
-                    borderColor: "rgba(72,72,72,0.35)",
-                },
-            }}
-        >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
-                <Box sx={{ color: theme.palette.secondary.main, display: "flex" }}>{icon}</Box>
-                <Typography
-                    variant="caption"
-                    sx={{
-                        color: theme.palette.text.secondary,
-                        opacity: 0.7,
-                    }}
-                >
-                    ↗
-                </Typography>
-            </Stack>
-
-            <Typography variant="subtitle1" sx={{ mb: 0.5, fontWeight: 600 }}>
-                {title}
-            </Typography>
-
-            <Typography variant="body2" sx={{ color: theme.palette.text.secondary, lineHeight: 1.6 }}>
-                {body}
-            </Typography>
-        </Card>
-    );
-}
-
-function ChatBubble({ message, isGenerating }: { message: Msg; isGenerating: boolean }) {
-    const theme = useTheme();
-    const isUser = message.role === "user";
-
-    return (
-        <Box
-            sx={{
-                display: "flex",
-                justifyContent: isUser ? "flex-end" : "flex-start",
-            }}
-        >
-            <Box
-                sx={{
-                    maxWidth: { xs: "92%", md: "78%" },
-                    px: 1.75,
-                    py: 1.4,
-                    borderRadius: 2,
-                    border: `1px solid ${theme.palette.outline.variant}`,
-                    backgroundColor: isUser
-                        ? "rgba(209, 188, 255, 0.10)"
-                        : theme.palette.surface.mid,
-                    backdropFilter: "blur(10px)",
-                }}
-            >
-                <Typography
-                    variant="caption"
-                    sx={{
-                        display: "block",
-                        color: isUser ? "" : theme.palette.text.secondary,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                    }}
-                >
-                    {isUser ? ("") : (<Box
-                        component="span"
-                        sx={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 0.5,
-                        }}
-                    >
-                        <Icon sx={{ fontSize: 15, color: theme.palette.primary.main }}>tokens</Icon>
-                        Obi
-                    </Box>)}
-                </Typography>
-
-                <Typography
-                    variant="body2"
-                    sx={{
-                        whiteSpace: "pre-wrap",
-                        lineHeight: 1.6,
-                        color: theme.palette.text.primary,
-                    }}
-                >
-                    {message.content || (!isUser && isGenerating ? "…" : "")}
-                </Typography>
-            </Box>
-        </Box>
-    );
-}
 
 function ChatThreadContent({
     messages,
@@ -156,6 +45,7 @@ function ChatThreadContent({
     const visibleMessages = useMemo(() => messages.filter((m) => m.role !== "system"), [messages]);
     const hasConversation = visibleMessages.length > 0;
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
     useEffect(() => {
         if (!hasConversation) return;
 
@@ -167,7 +57,7 @@ function ChatThreadContent({
 
     const suggestionPrompts = [
         "What causes a false burrow alert at South Lintel?",
-        "What is the threshold for acceptable hydrophone cleaning recovery?",
+        "What's the weather in LA?",
         "Which site is most affected by trench-driven salinity pulses in Needle Rain season?",
     ];
 

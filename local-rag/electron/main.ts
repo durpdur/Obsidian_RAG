@@ -6,6 +6,7 @@ import { EmbedSidecar } from "./embedSidecar.js";
 import { VectorStore } from "./vectorStore.js";
 import { initDatabase } from "./database.js";
 import { FileWatcher } from "./fileWatcher.js";
+import { weatherTools } from "./tools/tools";
 
 // -- Developer Mode Check -----------------------------
 const isDev = !app.isPackaged // Packaged means not developer, not packaged means developer mode
@@ -23,7 +24,7 @@ const __dirname = path.dirname(__filename)
 
 /* - Chat Setting Variables -----------
 */
-const chatModelTemperature = 0.2;
+const chatModelTemperature = 0.4;
 
 /* - LlamaSidecar IPC handler -----------------------------------
 Main-process handlers manage the LlamaSidecar lifecycle (ipcMain.handle).
@@ -42,13 +43,12 @@ function registerLlamaIpc() {
         await llama.start();
         return llama.getStatus();
     });
-
-    ipcMain.handle("llama:status", async () => {
+    ipcMain.handle("llama:stop", async () => {
+        llama.stop();
         return llama.getStatus();
     });
 
-    ipcMain.handle("llama:stop", async () => {
-        llama.stop();
+    ipcMain.handle("llama:status", async () => {
         return llama.getStatus();
     });
 }
@@ -84,7 +84,6 @@ ipcMain.on("llama:chat_stream_start", async (event, { requestId, messages, tempe
 
     console.log(messages); // debug
 
-
     try {
         // Start fetch to local server with "stream: true" (SSE)
         const res = await fetch(`${llama.getStatus().baseUrl}/v1/chat/completions`, {
@@ -94,6 +93,7 @@ ipcMain.on("llama:chat_stream_start", async (event, { requestId, messages, tempe
             body: JSON.stringify({
                 model: "local-model",
                 messages,
+                tools: weatherTools,
                 temperature: temperature ?? chatModelTemperature,
                 stream: true,
             }),
@@ -147,9 +147,18 @@ ipcMain.on("llama:chat_stream_start", async (event, { requestId, messages, tempe
                     // parse JSON chunk (OpenAI-style)
                     try {
                         const json = JSON.parse(data);
-                        const delta = json?.choices?.[0]?.delta?.content ?? "";
-                        if (delta) {
-                            event.sender.send("llama:chat_stream_delta", { requestId, delta });
+                        const choice = json?.choices?.[0];
+                        const delta = choice?.delta;
+
+                        const textDelta = delta?.content ?? "";
+                        if (textDelta) {
+                            event.sender.send("llama:chat_stream_delta", { requestId, delta: textDelta });
+                        }
+
+                        const toolCalls = delta?.tool_calls;
+                        if (toolCalls) {
+                            console.log("TOOL CALL DELTA:", JSON.stringify(toolCalls, null, 2));
+                            event.sender.send("llama:tool_call_delta", { requestId, toolCalls });
                         }
                     } catch {
                         // ignore malformed chunk
@@ -281,7 +290,7 @@ function createWindow() {
     if (isDev) {
         const devUrl = process.env.VITE_DEV_SERVER_URL ?? "http://localhost:5173";
         win.loadURL(devUrl);
-        win.webContents.openDevTools() // Auto opens dev tools
+        // win.webContents.openDevTools() // Auto opens dev tools
     } else {
         win.loadFile(path.join(__dirname, "../dist/index.html"))
     }

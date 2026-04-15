@@ -1,10 +1,21 @@
 export { };
 
-type ChatRole = "system" | "user" | "assistant";
+type ChatRole = "system" | "user" | "assistant" | "tool";
 
 export type Msg = {
     role: ChatRole;
     content: string;
+    toolCalls?: ToolCall[];
+};
+
+export type ToolCall = {
+    id?: string;
+    index: number;
+    type?: "function";
+    function?: {
+        name?: string;
+        arguments?: string;
+    };
 };
 
 export type SearchResult = {
@@ -30,7 +41,7 @@ export interface LlamaApi {
     status(): Promise<LlamaStatus>;
     stop(): Promise<LlamaStatus>;
 
-    // Streaming
+    // Chat Streaming controls
     chatStreamStart(params: {
         requestId: string;
         messages: Msg[];
@@ -39,8 +50,13 @@ export interface LlamaApi {
 
     chatStreamCancel(): void;
 
+    // Chat Streaming Events
     onChatStreamDelta(
         cb: (payload: { requestId: string; delta: string }) => void
+    ): () => void;
+
+    onToolCallDelta(
+        cb: (payload: { requestId: string; delta; string }) => void
     ): () => void;
 
     onChatStreamDone(

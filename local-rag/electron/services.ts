@@ -1,4 +1,4 @@
-import { LlamaSidecar } from "./llamaSidecar.js";
+import { LlamaSidecar } from "./chatSidecar.js";
 import { EmbedSidecar } from "./embedSidecar.js";
 import { VectorStore } from "./vectorStore.js";
 import { FileWatcher } from "./fileWatcher.js";

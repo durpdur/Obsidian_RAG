@@ -38,3 +38,8 @@ export const weatherTools = [
     }
   }
 ];
+
+export const validToolCalls = new Set<String>;
+for (const tool of weatherTools) {
+  validToolCalls.add(tool.function.name);
+}

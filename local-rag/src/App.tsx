@@ -231,7 +231,6 @@ function App({ selectedTheme, onToggleTheme }: AppProps) {
             window.llama.chatStreamStart({
                 requestId,
                 messages: nextMessages,
-                // temperature: 0.4,
             });
         } catch (e: any) {
             setIsGenerating(false);

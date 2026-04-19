@@ -20,12 +20,6 @@ contextBridge.exposeInMainWorld("llama", {
     chatStreamCancel: () => ipcRenderer.send("llama:chat_stream_cancel"),
 
     // Chat Streaming events
-    onChatStreamStarted: (cb: (payload: StreamStartedPayload) => void) => {
-        const handler = (_: unknown, payload: StreamStartedPayload) => cb(payload);
-        ipcRenderer.on("llama:chat_stream_started", handler);
-        return () => ipcRenderer.removeListener("llama:chat_stream_started", handler);
-    },
-
     onChatStreamDelta: (cb: (payload: StreamDeltaPayload) => void) => {
         const handler = (_: unknown, payload: StreamDeltaPayload) => cb(payload);
         ipcRenderer.on("llama:chat_stream_delta", handler);
@@ -36,19 +30,7 @@ contextBridge.exposeInMainWorld("llama", {
         const handler = (_: unknown, payload: StreamDeltaPayload) => cb(payload);
         ipcRenderer.on("llama:tool_call_delta", handler);
         return () => ipcRenderer.removeListener("llama:tool_call_delta", handler);
-    },
-
-    onChatStreamDone: (cb: (payload: StreamDonePayload) => void) => {
-        const handler = (_: unknown, payload: StreamDonePayload) => cb(payload);
-        ipcRenderer.on("llama:chat_stream_done", handler);
-        return () => ipcRenderer.removeListener("llama:chat_stream_done", handler);
-    },
-
-    onChatStreamError: (cb: (payload: StreamErrorPayload) => void) => {
-        const handler = (_: unknown, payload: StreamErrorPayload) => cb(payload);
-        ipcRenderer.on("llama:chat_stream_error", handler);
-        return () => ipcRenderer.removeListener("llama:chat_stream_error", handler);
-    },
+    }
 });
 
 contextBridge.exposeInMainWorld("api", {
